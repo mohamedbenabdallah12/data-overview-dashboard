@@ -1,73 +1,156 @@
-# Welcome to your Lovable project
+# Analytics Dashboard
 
-## Project info
+A professional React + TypeScript dashboard for visualizing business data from a .NET backend.
 
-**URL**: https://lovable.dev/projects/06860f26-088d-4869-9bdd-e9f372ae31df
+## 🚀 Quick Start
 
-## How can I edit this code?
+### Prerequisites
+- Node.js 16+ and npm installed
+- .NET backend API running (optional, uses mock data by default)
 
-There are several ways of editing your application.
+### Installation
 
-**Use Lovable**
+```bash
+# Install dependencies
+npm install
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/06860f26-088d-4869-9bdd-e9f372ae31df) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will run at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🏗️ Architecture
 
-**Use GitHub Codespaces**
+```
+src/
+ ├─ api/                      # API layer
+ │   ├─ axiosClient.ts        # Axios instance with interceptors
+ │   ├─ salesService.ts       # Sales API calls
+ │   ├─ productsService.ts    # Products API calls
+ │   └─ warehouseService.ts   # Warehouse API calls
+ ├─ components/
+ │   ├─ charts/               # Reusable chart components
+ │   │   ├─ LineChart.tsx
+ │   │   ├─ BarChart.tsx
+ │   │   └─ PieChart.tsx
+ │   └─ ui/                   # UI components
+ │       ├─ Card.tsx
+ │       ├─ MetricCard.tsx
+ │       └─ DataTable.tsx
+ ├─ layouts/                  # Layout components
+ │   ├─ MainLayout.tsx
+ │   ├─ Sidebar.tsx
+ │   └─ TopBar.tsx
+ ├─ modules/
+ │   └─ dashboard/            # Dashboard module
+ │       ├─ DashboardPage.tsx
+ │       └─ components/
+ │           ├─ SalesSection.tsx
+ │           ├─ ProductsSection.tsx
+ │           └─ WarehouseSection.tsx
+ ├─ types/                    # TypeScript types
+ └─ utils/                    # Utility functions
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🔧 Configuration
 
-## What technologies are used for this project?
+### Connecting to Your .NET Backend
 
-This project is built with:
+1. Create a `.env` file in the root directory:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
+```
 
-## How can I deploy this project?
+2. Update the service files in `src/api/` to uncomment the actual API calls:
 
-Simply open [Lovable](https://lovable.dev/projects/06860f26-088d-4869-9bdd-e9f372ae31df) and click on Share -> Publish.
+```typescript
+// Before (mock):
+await new Promise(resolve => setTimeout(resolve, 500));
+return mockData;
 
-## Can I connect a custom domain to my Lovable project?
+// After (real API):
+const response = await axiosClient.get<SalesDto[]>('/sales/monthly');
+return response.data;
+```
 
-Yes, you can!
+### Expected API Endpoints
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Your .NET backend should expose these endpoints:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+#### Sales
+- `GET /api/sales/monthly` → `SalesDto[]`
+- `GET /api/sales/kpis` → `KpiDto[]`
+
+#### Products
+- `GET /api/products/stats` → `ProductDto[]`
+
+#### Warehouse
+- `GET /api/warehouse/locations` → `WarehouseDto[]`
+- `GET /api/warehouse/kpis` → `KpiDto[]`
+
+### TypeScript Types
+
+All data types are defined in `src/types/index.ts`. Ensure your .NET API returns data matching these interfaces.
+
+## 📊 Features
+
+### Dashboard Sections
+
+1. **Sales Overview**
+   - Monthly revenue line chart
+   - KPI cards (Total Revenue, Orders, Avg Order Value, Growth Rate)
+   - Sales details table
+
+2. **Products Analytics**
+   - Revenue by product bar chart
+   - Sales by category pie chart
+   - Product details table
+
+3. **Warehouse Operations**
+   - Capacity vs stock bar chart
+   - KPI cards (Total Capacity, Current Stock, Utilization)
+   - Warehouse details table
+
+## 🎨 Tech Stack
+
+- **React 18** - UI library
+- **TypeScript** - Type safety
+- **TailwindCSS** - Styling
+- **Chart.js** - Data visualization
+- **Axios** - HTTP client
+- **Vite** - Build tool
+- **React Router** - Routing
+- **Shadcn/ui** - UI components
+
+## 📦 Build & Deploy
+
+```bash
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+The build output will be in the `dist/` folder.
+
+## 🔍 Development Tips
+
+- **Mock Data**: By default, the app uses mock data. Switch to real API calls when ready.
+- **Error Handling**: Check browser console for API errors.
+- **Hot Reload**: Changes are reflected instantly during development.
+- **Type Safety**: TypeScript ensures data consistency between frontend and backend.
+
+## 🤝 Contributing
+
+1. Keep components small and reusable
+2. Follow the existing folder structure
+3. Use TypeScript for all new files
+4. Maintain clean, readable code
+5. Test with both mock and real API data
+
+## 📝 License
+
+MIT
