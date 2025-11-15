@@ -1,32 +1,22 @@
 import axiosClient from './axiosClient';
 import { SalesDto, KpiDto } from '@/types';
-
-// Mock data for demonstration
-const mockSalesData: SalesDto[] = [
-  { month: 'Jan', revenue: 45000, orders: 120, growth: 12 },
-  { month: 'Feb', revenue: 52000, orders: 145, growth: 15 },
-  { month: 'Mar', revenue: 48000, orders: 132, growth: -8 },
-  { month: 'Apr', revenue: 61000, orders: 168, growth: 27 },
-  { month: 'May', revenue: 55000, orders: 151, growth: -10 },
-  { month: 'Jun', revenue: 67000, orders: 189, growth: 22 },
-];
-
-const mockKpis: KpiDto[] = [
-  { label: 'Total Revenue', value: '$328,000', change: 12.5, trend: 'up' },
-  { label: 'Total Orders', value: '905', change: 8.2, trend: 'up' },
-  { label: 'Avg Order Value', value: '$362', change: -2.1, trend: 'down' },
-  { label: 'Growth Rate', value: '15.3%', change: 3.2, trend: 'up' },
-];
+import { ENDPOINTS } from './endpoints';
 
 export const getMonthlySales = async (): Promise<SalesDto[]> => {
   try {
-    // Replace with actual API call:
-    // const response = await axiosClient.get<SalesDto[]>('/sales/monthly');
-    // return response.data;
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return mockSalesData;
+    const response = await axiosClient.get<{month: string, totalSales: number}[]>(ENDPOINTS.SALE.BY_MONTH);
+    const rawData = response.data;
+    // Calculate growth based on sequential months
+    const salesData: SalesDto[] = rawData.map((item, index) => {
+      const growth = index > 0 ? ((item.totalSales - rawData[index-1].totalSales) / rawData[index-1].totalSales) * 100 : 0;
+      return {
+        month: item.month,
+        revenue: item.totalSales,
+        orders: 0, // Backend doesn't provide orders
+        growth: growth
+      };
+    });
+    return salesData;
   } catch (error) {
     console.error('Error fetching sales data:', error);
     throw error;
@@ -35,12 +25,21 @@ export const getMonthlySales = async (): Promise<SalesDto[]> => {
 
 export const getSalesKpis = async (): Promise<KpiDto[]> => {
   try {
-    // Replace with actual API call:
-    // const response = await axiosClient.get<KpiDto[]>('/sales/kpis');
-    // return response.data;
-    
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return mockKpis;
+    const monthlySales = await getMonthlySales();
+    // Calculate KPIs
+    const totalRevenue = monthlySales.reduce((sum, sale) => sum + sale.revenue, 0);
+    const totalOrders = monthlySales.reduce((sum, sale) => sum + sale.orders, 0);
+    const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    const latest = monthlySales[monthlySales.length - 1];
+    const previous = monthlySales[monthlySales.length - 2] || { revenue: 0, orders: 0 };
+    const growthRate = previous.revenue > 0 ? ((latest.revenue - previous.revenue) / previous.revenue) * 100 : 0;
+    const kpis: KpiDto[] = [
+      { label: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, change: 0, trend: 'up' },
+      { label: 'Total Orders', value: totalOrders.toString(), change: 0, trend: 'up' },
+      { label: 'Avg Order Value', value: `$${avgOrderValue.toFixed(2)}`, change: 0, trend: 'up' },
+      { label: 'Growth Rate', value: `${growthRate.toFixed(1)}%`, change: 0, trend: 'up' },
+    ];
+    return kpis;
   } catch (error) {
     console.error('Error fetching sales KPIs:', error);
     throw error;

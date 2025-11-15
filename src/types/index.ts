@@ -24,6 +24,24 @@ export interface WarehouseDto {
   lastUpdated: string;
 }
 
+export interface SaleDto {
+  id: string;
+  date: string;
+  stockItemId: string;
+  quantity: number;
+  total: number;
+  profit: number;
+  customerId: string;
+  salesPersonId: string;
+  packageTypeId: string;
+  methodDeliveryId: string;
+  locationId: string;
+  productName: string;
+  category: string;
+  billCustomerId: string;
+  contactPersonId: string;
+}
+
 export interface KpiDto {
   label: string;
   value: string | number;
