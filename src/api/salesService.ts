@@ -45,3 +45,23 @@ export const getSalesKpis = async (): Promise<KpiDto[]> => {
     throw error;
   }
 };
+
+export const getYearlySales = async (): Promise<{years: number, totalSales: number}[]> => {
+  try {
+    const response = await axiosClient.get<{years: number, totalSales: number}[]>(ENDPOINTS.SALE.BY_YEARS);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching yearly sales:', error);
+    throw error;
+  }
+};
+
+export const getEmployeeSalesByYear = async (): Promise<{name: string, preferredName: string, years: number, totalSales: number}[]> => {
+  try {
+    const response = await axiosClient.get<{name: string, preferredName: string, years: number, totalSales: number}[]>(ENDPOINTS.SALE.BY_EMPLOYEE_BY_YEAR);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching employee sales by year:', error);
+    throw error;
+  }
+};

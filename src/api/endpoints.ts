@@ -15,5 +15,7 @@ export const ENDPOINTS = {
     BY_METHOD_DELIVERY: (methodDeliveryId: string) => `/api/Sale/by-method-delivery/${methodDeliveryId}`,
     STATS_BY_DAY: '/api/Sale/stats/by-day',
     BY_MONTH: '/api/Sale/by-month',
+    BY_YEARS: '/api/Sale/by-years',
+    BY_EMPLOYEE_BY_YEAR: '/api/Sale/by-Employee-by-Year',
   },
 } as const;
