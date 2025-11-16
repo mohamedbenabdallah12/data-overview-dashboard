@@ -17,5 +17,7 @@ export const ENDPOINTS = {
     BY_MONTH: '/api/Sale/by-month',
     BY_YEARS: '/api/Sale/by-years',
     BY_EMPLOYEE_BY_YEAR: '/api/Sale/by-Employee-by-Year',
+    BY_METHODS: '/api/Sale/by-Methods',
+    BY_PACKAGE_TYPES: '/api/Sale/by-packageType',
   },
 } as const;

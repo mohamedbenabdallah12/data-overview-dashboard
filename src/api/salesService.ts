@@ -25,10 +25,10 @@ export const getMonthlySales = async (): Promise<SalesDto[]> => {
 
 export const getSalesKpis = async (): Promise<KpiDto[]> => {
   try {
-    const monthlySales = await getMonthlySales();
-    // Calculate KPIs
-    const totalRevenue = monthlySales.reduce((sum, sale) => sum + sale.revenue, 0);
-    const totalOrders = monthlySales.reduce((sum, sale) => sum + sale.orders, 0);
+    const [monthlySales, methodData] = await Promise.all([getMonthlySales(), getSalesByMethods()]);
+    // Calculate total revenue and orders from methods
+    const totalRevenue = methodData.reduce((sum, item) => sum + item.totalSales, 0);
+    const totalOrders = methodData.reduce((sum, item) => sum + item.totalOrders, 0);
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
     const latest = monthlySales[monthlySales.length - 1];
     const previous = monthlySales[monthlySales.length - 2] || { revenue: 0, orders: 0 };
@@ -62,6 +62,26 @@ export const getEmployeeSalesByYear = async (): Promise<{name: string, preferred
     return response.data;
   } catch (error) {
     console.error('Error fetching employee sales by year:', error);
+    throw error;
+  }
+};
+
+export const getSalesByMethods = async (): Promise<{deliveryMethodName: string, totalSales: number, totalOrders: number}[]> => {
+  try {
+    const response = await axiosClient.get<{deliveryMethodName: string, totalSales: number, totalOrders: number}[]>(ENDPOINTS.SALE.BY_METHODS);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching sales by methods:', error);
+    throw error;
+  }
+};
+
+export const getSalesByPackageTypes = async (): Promise<{packageTypeName: string, totalSales: number, totalOrders: number}[]> => {
+  try {
+    const response = await axiosClient.get<{packageTypeName: string, totalSales: number, totalOrders: number}[]>(ENDPOINTS.SALE.BY_PACKAGE_TYPES);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching sales by package types:', error);
     throw error;
   }
 };

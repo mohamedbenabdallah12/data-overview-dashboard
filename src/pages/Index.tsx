@@ -3,15 +3,63 @@ import { MainLayout } from '@/layouts/MainLayout';
 import { Card } from '@/components/ui/card';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { getMonthlySales, getSalesKpis, getYearlySales, getEmployeeSalesByYear } from '@/api/salesService';
+import { Progress } from '@/components/ui/progress';
+import { getMonthlySales, getSalesKpis, getYearlySales, getEmployeeSalesByYear, getSalesByMethods, getSalesByPackageTypes } from '@/api/salesService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
+import { Truck } from 'lucide-react';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+const SemiCircularGauge = ({ percentage }: { percentage: number }) => {
+  const radius = 60;
+  const strokeWidth = 12;
+  const circumference = Math.PI * radius;
+  const strokeDasharray = circumference;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="flex justify-center items-center">
+      <svg width="140" height="80" className="overflow-visible">
+        {/* Background arc */}
+        <path
+          d={`M ${strokeWidth/2} ${strokeWidth/2} A ${radius} ${radius} 0 0 1 ${140-strokeWidth/2} ${strokeWidth/2}`}
+          stroke="#e5e7eb"
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeLinecap="round"
+        />
+        {/* Progress arc */}
+        <path
+          d={`M ${strokeWidth/2} ${strokeWidth/2} A ${radius} ${radius} 0 0 1 ${140-strokeWidth/2} ${strokeWidth/2}`}
+          stroke="url(#gaugeGradient)"
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeLinecap="round"
+          strokeDasharray={strokeDasharray}
+          strokeDashoffset={strokeDashoffset}
+          className="transition-all duration-1000 ease-out"
+        />
+        <defs>
+          <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#8b5cf6" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div className="absolute text-center">
+        <div className="text-2xl font-black text-gray-900">{percentage.toFixed(0)}%</div>
+        
+      </div>
+    </div>
+  );
+};
 
 const Index = () => {
   const [salesData, setSalesData] = useState<any[]>([]);
   const [yearlySales, setYearlySales] = useState<any[]>([]);
   const [employeeSales, setEmployeeSales] = useState<any[]>([]);
+  const [methodData, setMethodData] = useState<any[]>([]);
+  const [packageTypeData, setPackageTypeData] = useState<any[]>([]);
   const [employees, setEmployees] = useState<string[]>([]);
   const [lineData, setLineData] = useState<any[]>([]);
   const [salesKpis, setSalesKpis] = useState<any[]>([]);
@@ -20,10 +68,12 @@ const Index = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [sales, yearly, empSales, sKpis] = await Promise.all([
+        const [sales, yearly, empSales, methodSales, pkgTypes, sKpis] = await Promise.all([
           getMonthlySales(),
           getYearlySales(),
           getEmployeeSalesByYear(),
+          getSalesByMethods(),
+          getSalesByPackageTypes(),
           getSalesKpis(),
         ]);
         // Process employee sales for line chart
@@ -47,6 +97,8 @@ const Index = () => {
         setSalesData(sales);
         setYearlySales(yearly);
         setEmployeeSales(empSales);
+        setMethodData(methodSales);
+        setPackageTypeData(pkgTypes);
         setEmployees(employees);
         setLineData(lineData);
         setSalesKpis(sKpis);
@@ -182,6 +234,116 @@ const Index = () => {
                 ))}
               </LineChart>
             </ResponsiveContainer>
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="mb-4 text-lg font-semibold text-foreground">Package Type Performance Curves</h3>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart
+                data={packageTypeData.map((pkg: any) => ({
+                  name: pkg.packageTypeName,
+                  sales: pkg.totalSales,
+                  orders: pkg.totalOrders * 1000, // Scale orders for visibility
+                }))}
+                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 12 }}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis
+                  yAxisId="left"
+                  tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  tickFormatter={(value) => (value / 1000).toLocaleString()}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip
+                  formatter={(value, name) => {
+                    const numValue = Number(value);
+                    if (name === 'sales') {
+                      return [`$${numValue.toLocaleString()}`, 'Total Sales'];
+                    } else {
+                      return [`${(numValue / 1000).toLocaleString()}`, 'Orders'];
+                    }
+                  }}
+                  labelFormatter={(label) => `Package Type: ${label}`}
+                />
+                <Legend />
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="sales"
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  dot={{ r: 5 }}
+                  name="Sales"
+                  animationBegin={0}
+                  animationDuration={2000}
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="orders"
+                  stroke="#f59e0b"
+                  strokeWidth={2}
+                  dot={{ r: 4, strokeWidth: 2 }}
+                  strokeDasharray="5 5"
+                  name="Orders"
+                  animationBegin={200}
+                  animationDuration={1800}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+
+          <Card className="p-8 bg-gradient-to-br from-blue-50 to-indigo-100 shadow-md hover:shadow-xl transition-all duration-300 mx-auto max-w-2xl">
+            <h3 className="mb-6 text-2xl font-extrabold text-gray-900 text-center">Delivery Methods Performance Gauges</h3>
+            <div className="flex justify-center">
+              <ResponsiveContainer width="100%" height={400}>
+                <PieChart>
+                  <Pie
+                    data={methodData.map((item) => ({
+                      name: item.deliveryMethodName,
+                      value: item.totalSales,
+                      orders: item.totalOrders
+                    }))}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={150}
+                    fill="#8884d8"
+                    dataKey="value"
+                    animationBegin={0}
+                    animationDuration={1500}
+                  >
+                    {methodData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value, name, props) => [
+                      `$${Number(value).toLocaleString()} (${props.payload.orders} orders)`,
+                      name
+                    ]}
+                    labelFormatter={(label) => `Method: ${label}`}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-6 text-center text-gray-600">
+              <p className="text-lg">Total Sales Distribution by Delivery Method</p>
+              <p className="text-sm mt-1">Hover for detailed order information</p>
+            </div>
           </Card>
         </section>
       </div>
