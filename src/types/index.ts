@@ -79,3 +79,21 @@ export interface StockItemPurchaseDto {
   totalOrderedOuters: number;
   totalAmount: number;
 }
+
+export interface PackageTypePurchaseDto {
+  packageTypeName: string;
+  totalOrderedOuters: number;
+  totalAmount: number;
+}
+
+export interface SalesVsPurchaseDto {
+  stockItemKey: number;
+  stockItemName: string;
+  totalSalesQuantity: number;
+  totalSalesAmount: number;
+  totalPurchaseQuantity: number;
+  totalPurchaseAmount: number;
+  quantityDifference: number;
+  amountDifference: number;
+  salesToPurchaseRatio: number;
+}

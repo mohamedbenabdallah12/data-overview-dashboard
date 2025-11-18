@@ -5,9 +5,12 @@ import { MetricCard } from '@/components/ui/MetricCard';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import { getMonthlySales, getSalesKpis, getYearlySales, getEmployeeSalesByYear, getSalesByMethods, getSalesByPackageTypes } from '@/api/salesService';
-import { getPurchaseOrderedVsReceived, getPurchaseKpis, getPurchaseBySupplier, getPurchaseByStockItems } from '@/api/purchaseService';
+import { getPurchaseOrderedVsReceived, getPurchaseKpis, getPurchaseBySupplier, getPurchaseByStockItems, getPurchaseByPackageType } from '@/api/purchaseService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
 import { Truck } from 'lucide-react';
+import PurchaseByPackageTypeChart from '@/components/PurchaseByPackageTypeChart';
+import SalesVsPurchaseTable from '@/components/SalesVsPurchaseTable';
+import SalesVsPurchaseHistograms from '@/components/SalesVsPurchaseHistograms';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
@@ -139,8 +142,8 @@ const Index = () => {
       <div className="space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Sales Dashboard</h1>
-          <p className="text-muted-foreground">Monitor sales metrics and performance</p>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard Analytics</h1>
+          <p className="text-muted-foreground">Comprehensive sales, purchases, and inventory analytics</p>
         </div>
 
         {/* Sales Section */}
@@ -442,6 +445,8 @@ const Index = () => {
             </Card>
           </div>
 
+          <PurchaseByPackageTypeChart />
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Suppliers Ranking */}
             <Card className="p-6 lg:col-span-2">
@@ -626,6 +631,15 @@ const Index = () => {
               Top 10 products ranked by purchase amount - highlighting single product dependency risks
             </p>
           </Card>
+        </section>
+
+        {/* Warehouse Section */}
+        <section id="warehouse" className="space-y-6 scroll-mt-6">
+          <h2 className="text-2xl font-bold text-foreground">Warehouse Analytics</h2>
+
+          <SalesVsPurchaseTable />
+
+          <SalesVsPurchaseHistograms />
         </section>
       </div>
     </MainLayout>
