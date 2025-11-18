@@ -5,7 +5,7 @@ export const Sidebar = () => {
   const navItems = [
     { to: '/', icon: Home, label: 'Dashboard' },
     { to: '#sales', icon: BarChart3, label: 'Sales', isHash: true },
-    { to: '#products', icon: Package, label: 'Products', isHash: true },
+    { to: '#purchases', icon: Package, label: 'Purchases', isHash: true },
     { to: '#warehouse', icon: Warehouse, label: 'Warehouse', isHash: true },
   ];
 

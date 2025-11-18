@@ -53,3 +53,29 @@ export interface ChartDataPoint {
   label: string;
   value: number;
 }
+
+export interface PurchaseDto {
+  purchaseOrderID: number;
+  purchaseOrderLineID: number;
+  stockItemID: number;
+  orderedOuters: number;
+  receivedOuters: number;
+  differenceOuters: number;
+  deliveryStatus: 'Conforme' | 'Sous-livré' | 'Sur-livré';
+  expectedUnitPricePerOuter: number;
+  expectedAmount: number;
+  receivedAmount: number;
+}
+
+export interface SupplierPurchaseDto {
+  supplierName: string;
+  totalPurchaseAmount: number;
+  totalOrderedOuters: number;
+  numberOfOrders: number;
+}
+
+export interface StockItemPurchaseDto {
+  stockItemName: string;
+  totalOrderedOuters: number;
+  totalAmount: number;
+}

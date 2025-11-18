@@ -20,4 +20,11 @@ export const ENDPOINTS = {
     BY_METHODS: '/api/Sale/by-Methods',
     BY_PACKAGE_TYPES: '/api/Sale/by-packageType',
   },
+  // Purchase endpoints
+  PURCHASE: {
+    BASE: '/api/Purchase',
+    BY_PURCHASE_ORDERED_VS_RECEIVED: '/api/Purchase/by-Purchase_Ordered_vs_Received',
+    BY_PURCHASE_BY_SUPPLIER: '/api/Purchase/by-Purchase_BySupplier',
+    BY_PURCHASE_BY_STOCK_ITEMS: '/api/Purchase/by-PurchaseByStockItems',
+  },
 } as const;
